@@ -1,7 +1,7 @@
 
 # Função de Gini
 
-TIPOS = ["Linfócitio", "Monócito", "Eosinófilo", "Básofilo", "Neutrófilo"]
+TIPOS = ["Linfócito", "Monócito", "Eosinófilo", "Basófilo", "Neutrófilo"]
 
 def gini_function(labels):
     total = len(labels)
@@ -22,14 +22,14 @@ def gini_function(labels):
     return 1 - soma
 
 # Exemplo:
-# print(gini_function([TIPOS[0] * 3, TIPOS[3] * 2, TIPOS[1], TIPOS[4] * 5]))
+# print(gini_function([TIPOS[0]] * 3 + [TIPOS[3]] * 2 + [TIPOS[1]] + [TIPOS[4]] * 5))
 
 
 # Gini Ponderado
-def gini_balanced_function(labels_left, labels_rigth):
-    total = len(labels_left) + len(labels_rigth)
+def gini_balanced_function(labels_left, labels_right):
+    total = len(labels_left) + len(labels_right)
     return ((len(labels_left) / total) * gini_function(labels_left) + 
-            (len(labels_rigth) / total) * gini_function(labels_rigth))
+            (len(labels_right) / total) * gini_function(labels_right))
 
 
 # Função que válida o melhor corte (baseado em um atributo)
@@ -62,7 +62,7 @@ def best_cut(values, labels):
 
     return best_threshold, best_gini
 
-    # Válida a melhor divisão (basedo no melhor atributo)
+# Válida a melhor divisão (baseado no melhor atributo)
 def best_divider(x, y):
     best_attribute, best_threshold, best_gini = None, None, float("inf")
 

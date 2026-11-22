@@ -1,4 +1,3 @@
-from tree_decision import arvore
 
 def extract_rules(node, conds=()):
     if "classe" in node:
@@ -9,9 +8,6 @@ def extract_rules(node, conds=()):
         extract_rules(node["esq"], conds + ((attribute, "<=", threshold),)) + 
         extract_rules(node["dir"], conds + ((attribute, ">", threshold),))
     )
-
-
-regras = extract_rules(arvore)
 
 
 def simplify_rule(rule):
@@ -27,7 +23,15 @@ def simplify_rule(rule):
         else:
             best[key] = max(best[key], threshold)
 
-        conds = tuple((attribute, operator, threshold) for (attribute, operator), threshold in best.items())
-        return {**rule, "conds": conds} 
-        
+    conds = tuple((attribute, operator, threshold) for (attribute, operator), threshold in best.items())
+    return {**rule, "conds": conds}
 
+
+if __name__ == "__main__":
+    from tree_decision import create_tree
+    from casos_teste_nao_validos import *
+
+    X, y = para_X_y(caso_repetido, ["x"])
+    for regra in extract_rules(create_tree(X, y)):
+        print("antes: ", regra["conds"], "->", regra["classe"])
+        print("depois:", simplify_rule(regra)["conds"], "->", regra["classe"])
