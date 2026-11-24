@@ -1,5 +1,6 @@
 import heapq
-from functions import covers_rule, precision_rule, coverage_rule, neighbors, thresholds_candidates
+import numpy as np
+from src.functions.functions import covers_rule, precision_rule, coverage_rule, neighbors, thresholds_candidates
 
 def create_astar(X, y, label, candidates, p_min=0.9, c_min=2, prof_max=3):
     def is_goal(precision, coverage):
@@ -66,7 +67,7 @@ def sequencial_coverage(X, y, p_min=0.9, c_min=2, prof_max=3):
 
 
 if __name__ == "__main__":
-    from casos_teste_nao_validos import *
+    from src.dataset.casos_teste_nao_validos import *
 
     X, y = para_X_y(caso_10_celulas, ["razao_nc", "lobulos"])
 

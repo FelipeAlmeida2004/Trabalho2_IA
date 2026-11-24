@@ -28,8 +28,8 @@ def simplify_rule(rule):
 
 
 if __name__ == "__main__":
-    from tree_decision import create_tree
-    from casos_teste_nao_validos import *
+    from src.tree_decision.tree_decision import create_tree
+    from src.dataset.casos_teste_nao_validos import *
 
     X, y = para_X_y(caso_repetido, ["x"])
     for regra in extract_rules(create_tree(X, y)):

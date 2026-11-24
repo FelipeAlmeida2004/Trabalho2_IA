@@ -1,7 +1,8 @@
+import numpy as np
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.datasets import load_iris
-from casos_teste_nao_validos import *
-from tree_decision import *
+from src.dataset.casos_teste_nao_validos import *
+from src.tree_decision.tree_decision import create_tree, predict_tree
 
 
 # X, y = para_X_y(caso_repetido, ["x"]) -> primeiro caso de teste

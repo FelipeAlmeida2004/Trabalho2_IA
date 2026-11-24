@@ -103,14 +103,16 @@ O mesmo comando funciona no Linux e no Windows.
 
 ## 3. Rodar o código
 
-Com o `poetry run`, o comando usa o ambiente do projeto sem precisar ativá-lo:
+Os comandos são executados **a partir da pasta raiz do projeto** (onde está o `pyproject.toml`), com `python -m` e o caminho do módulo separado por pontos, sem o `.py`. Assim os imports a partir de `src` funcionam. Com o `poetry run`, o comando usa o ambiente do projeto sem precisar ativá-lo:
 
 ```bash
-poetry run python tree_decision.py
-poetry run python rules.py
-poetry run python sklearn_comp.py
-poetry run python A_star.py
+poetry run python -m src.tree_decision.tree_decision
+poetry run python -m src.tree_decision.rules
+poetry run python -m src.tree_decision.sklearn_comp
+poetry run python -m src.a_star.A_star
 ```
+
+Rodar um arquivo diretamente (por exemplo, `python src/a_star/A_star.py`) dá `ModuleNotFoundError: No module named 'src'`. No VS Code, o botão de executar funciona porque o `.vscode/settings.json` coloca a raiz do projeto no `PYTHONPATH` do terminal integrado.
 
 Para ativar o ambiente e usar `python` diretamente:
 
@@ -140,14 +142,35 @@ Depois, faça commit dos dois arquivos. Os outros membros do grupo só precisam 
 
 ## Estrutura dos arquivos
 
+```text
+Trabalho2_IA/
+├── pyproject.toml          # dependências (Poetry)
+├── poetry.lock
+├── poetry.toml
+├── README.md
+└── src/
+    ├── a_star/
+    │   └── A_star.py
+    ├── dataset/
+    │   └── casos_teste_nao_validos.py
+    ├── functions/
+    │   └── functions.py
+    └── tree_decision/
+        ├── tree_decision.py
+        ├── rules.py
+        └── sklearn_comp.py
+```
+
+Cada pasta de `src` tem um `__init__.py` vazio, que a marca como pacote Python. Os imports usam sempre o caminho completo a partir de `src`, por exemplo `from src.functions.functions import gini_function`.
+
 | Arquivo | Conteúdo |
 | --- | --- |
-| `functions.py` | Funções de apoio. **Árvore:** índice de Gini, Gini ponderado, melhor corte de um atributo e melhor divisão entre atributos. **A\*:** células cobertas por uma regra (`covers_rule`), cobertura (`coverage_rule`), precisão (`precision_rule`), limiares candidatos (`thresholds_candidates`) e regras vizinhas (`neighbors`) |
-| `tree_decision.py` | Gerador 1: construção da árvore de decisão (`create_tree`) e previsão (`predict_tree`) |
-| `rules.py` | Extração das regras da árvore (`extract_rules`) e simplificação (`simplify_rule`) |
-| `A_star.py` | Gerador 2: busca A\* de uma regra para uma classe (`create_astar`) e cobertura sequencial (`sequencial_coverage`) |
-| `sklearn_comp.py` | Comparação da árvore implementada com a do scikit-learn |
-| `casos_teste_nao_validos.py` | Casos de teste em dicionários e a função `para_X_y` |
+| `src/functions/functions.py` | Funções de apoio. **Árvore:** índice de Gini, Gini ponderado, melhor corte de um atributo e melhor divisão entre atributos. **A\*:** células cobertas por uma regra (`covers_rule`), cobertura (`coverage_rule`), precisão (`precision_rule`), limiares candidatos (`thresholds_candidates`) e regras vizinhas (`neighbors`) |
+| `src/tree_decision/tree_decision.py` | Gerador 1: construção da árvore de decisão (`create_tree`) e previsão (`predict_tree`) |
+| `src/tree_decision/rules.py` | Extração das regras da árvore (`extract_rules`) e simplificação (`simplify_rule`) |
+| `src/tree_decision/sklearn_comp.py` | Comparação da árvore implementada com a do scikit-learn |
+| `src/a_star/A_star.py` | Gerador 2: busca A\* de uma regra para uma classe (`create_astar`) e cobertura sequencial (`sequencial_coverage`) |
+| `src/dataset/casos_teste_nao_validos.py` | Casos de teste em dicionários e a função `para_X_y` |
 
 ## Formato das regras
 

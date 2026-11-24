@@ -1,5 +1,5 @@
 import numpy as np
-from functions import gini_function, best_divider
+from src.functions.functions import gini_function, best_divider
 
 def major_class(y):
     classes, count = np.unique(y, return_counts=True)
@@ -32,7 +32,7 @@ def predict_tree(node, cell):
     return node["classe"]                      
 
 if __name__ == "__main__":
-    from casos_teste_nao_validos import *
+    from src.dataset.casos_teste_nao_validos import *
 
     X, y = para_X_y(caso_10_celulas, ["razao_nc", "lobulos"])
     print(create_tree(X, y))
