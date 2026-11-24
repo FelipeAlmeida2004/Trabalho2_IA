@@ -1,6 +1,7 @@
+import numpy as np
+# ====== Árvore de Decisão ======
 
 # Função de Gini
-
 TIPOS = ["Linfócito", "Monócito", "Eosinófilo", "Basófilo", "Neutrófilo"]
 
 def gini_function(labels):
@@ -20,9 +21,6 @@ def gini_function(labels):
         soma += p ** 2
 
     return 1 - soma
-
-# Exemplo:
-# print(gini_function([TIPOS[0]] * 3 + [TIPOS[3]] * 2 + [TIPOS[1]] + [TIPOS[4]] * 5))
 
 
 # Gini Ponderado
@@ -62,6 +60,7 @@ def best_cut(values, labels):
 
     return best_threshold, best_gini
 
+
 # Válida a melhor divisão (baseado no melhor atributo)
 def best_divider(x, y):
     best_attribute, best_threshold, best_gini = None, None, float("inf")
@@ -73,3 +72,65 @@ def best_divider(x, y):
             best_attribute, best_threshold, best_gini = j, threshold, gini
 
     return best_attribute, best_threshold, best_gini
+
+
+
+# ====== A* ======
+
+# Verifica se o limiar de cada atributo cobre a regra gerada
+def covers_rule(conds, X):
+    mask = np.ones(len(X), dtype=bool)
+
+    for attribute, operator, threshold in conds:
+        if operator == '<=':
+            mask &= X[:, attribute] <= threshold
+        else:
+            mask &= X[:, attribute] > threshold
+    return mask
+
+
+# Conta a quantidade de valores Verdadeiros, verificando a cobetura das regras
+def coverage_rule(mask, y, label):
+    return int(((y == label) & mask).sum())
+
+
+def precision_rule(mask, y, label):
+    coverage = mask.sum()
+
+    if coverage == 0:
+        return 0.0
+    return coverage_rule(mask, y, label) / coverage
+
+
+# Cria uma lista de limiares candidatos
+def thresholds_candidates(X, y):
+    candidates = []
+
+    for j in range(X.shape[1]):
+        classes_values = {}
+        for value, label in zip(X[:, j], y):
+            classes_values.setdefault(value, set()).add(label)
+
+        values = sorted(classes_values)
+        list = []
+
+        for a, b in zip(values[:-1], values[1:]):
+            ca, cb = classes_values[a], classes_values[b]
+            if len(ca) == 1 and ca == cb:
+                continue
+            list.append((a+b)/2)
+        candidates.append(list)
+    return candidates
+
+
+def neighbors(conds, candidates):
+    used = {(attribute, operator) for attribute, operator, _ in conds}
+    children = []
+
+    for j, thresholds in enumerate(candidates):
+        for op in ("<=", ">"):
+            if (j, op) in used:
+                continue
+            for thr in thresholds:
+                children.append(conds + ((j, op, thr),))
+    return children
