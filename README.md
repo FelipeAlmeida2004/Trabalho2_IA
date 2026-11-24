@@ -4,6 +4,27 @@ Agente com aprendizado supervisionado para classificação de leucócitos (neutr
 
 As dependências do projeto são gerenciadas com o [Poetry](https://python-poetry.org/docs/).
 
+## Sobre o projeto
+
+O agente classifica cada célula a partir de atributos extraídos da imagem (forma, cor e textura) por técnicas de processamento digital de imagens. Nenhuma regra é escrita à mão: elas são geradas por dois algoritmos com vieses de busca diferentes e depois fundidas num único conjunto.
+
+1. **Percepção (PDI):** cada imagem de célula vira uma linha de atributos, como a razão núcleo/citoplasma e o número de lóbulos do núcleo. Os rótulos (classes) vêm do dataset.
+2. **Gerador 1: árvore de decisão.** Implementada do zero com o índice de Gini. Cada caminho da raiz até uma folha vira uma regra.
+3. **Gerador 2: cobertura sequencial com A\*.** Para cada classe, o A\* encontra a regra com menos condições que atinge uma precisão e uma cobertura mínimas; a cobertura sequencial remove as células cobertas e repete até cobrir a classe.
+4. **Fusão das regras:** as regras comuns aos dois geradores entram no conjunto final, e as exclusivas entram por subida de encosta, se melhorarem o F1 macro na validação. Conflitos entre regras são resolvidos pela regra de Bayes.
+5. **Comparação:** o conjunto final de regras é comparado com modelos sem regras (k-NN e Naïve Bayes) no mesmo conjunto de teste.
+
+### Situação atual
+
+| Etapa | Situação |
+| --- | --- |
+| Árvore de decisão (Gini), previsão e extração de regras | Concluída e validada com o scikit-learn (Iris: mesmas previsões, 6 erros em 150) |
+| Simplificação das regras | Concluída |
+| Gerador 2: A\* e cobertura sequencial | Concluído e testado com os casos de teste |
+| Fusão das regras | A fazer |
+| Extração de atributos (PDI) | A fazer |
+| Comparação com k-NN e Naïve Bayes | A fazer |
+
 ## Requisitos
 
 - Python 3.12 ou mais recente
@@ -88,6 +109,7 @@ Com o `poetry run`, o comando usa o ambiente do projeto sem precisar ativá-lo:
 poetry run python tree_decision.py
 poetry run python rules.py
 poetry run python sklearn_comp.py
+poetry run python A_star.py
 ```
 
 Para ativar o ambiente e usar `python` diretamente:
@@ -120,8 +142,25 @@ Depois, faça commit dos dois arquivos. Os outros membros do grupo só precisam 
 
 | Arquivo | Conteúdo |
 | --- | --- |
-| `functions.py` | Índice de Gini, Gini ponderado, melhor corte de um atributo e melhor divisão entre atributos |
-| `tree_decision.py` | Construção da árvore de decisão (`create_tree`) e previsão (`predict_tree`) |
+| `functions.py` | Funções de apoio. **Árvore:** índice de Gini, Gini ponderado, melhor corte de um atributo e melhor divisão entre atributos. **A\*:** células cobertas por uma regra (`covers_rule`), cobertura (`coverage_rule`), precisão (`precision_rule`), limiares candidatos (`thresholds_candidates`) e regras vizinhas (`neighbors`) |
+| `tree_decision.py` | Gerador 1: construção da árvore de decisão (`create_tree`) e previsão (`predict_tree`) |
 | `rules.py` | Extração das regras da árvore (`extract_rules`) e simplificação (`simplify_rule`) |
+| `A_star.py` | Gerador 2: busca A\* de uma regra para uma classe (`create_astar`) e cobertura sequencial (`sequencial_coverage`) |
 | `sklearn_comp.py` | Comparação da árvore implementada com a do scikit-learn |
 | `casos_teste_nao_validos.py` | Casos de teste em dicionários e a função `para_X_y` |
+
+## Formato das regras
+
+Os dois geradores produzem regras no mesmo formato, o que permite a fusão:
+
+```python
+{
+    "conds": ((1, "<=", 2.0), (0, "<=", 0.8)),   # (atributo, operador, limiar)
+    "classe": "monócito",
+    "n": 3,                                        # células de treino cobertas
+    "origem": "arvore",                            # ou "astar"
+}
+```
+
+O número do atributo é a posição da coluna em X. No exemplo, com os atributos `["razao_nc", "lobulos"]`, a regra é: SE lóbulos <= 2 E razão_NC <= 0,8 ENTÃO monócito.
+
